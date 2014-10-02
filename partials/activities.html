@@ -12,7 +12,7 @@
         There are no activities here.
       </div>
       <div class="[ panel panel-default ] activity-feed"
-           ng-repeat="activity in activities.activity"
+           ng-repeat-start="activity in activities.activity"
            ng-if="activities.activity.length != 0">
         <div class="panel-heading">
           <a href="#/users/{{activity.uid}}">
@@ -28,21 +28,56 @@
             <span>{{activity.date | date:'EEEE, dd MMMM yyyy, HH:mm'}}</span> </h5>
         </div>
         <div class="panel-body">
+          <a href="" class="btn btn-default btn-sm commentBtn" ng-click="newComment(activity)">
+            <i class="fa fa-reply fa-flip-horizontal"></i>
+          </a>
           <p>{{activity.body}}</p>
         </div>
-        <!--<div class="panel-footer">
-          <img class="[ img-circle pull-left ]" gravatar-src="'{{activity.picture}}'" width="34" alt="user avatar" />
-          <div class="input-group">
-            <input type="text" class="form-control" placeholder="Add a comment...">
-            <span class="input-group-btn">
-              <button class="btn btn-primary" type="button">Post</button>
-            </span>
-          </div>
-        </div>-->
+      </div>
+      <!--Comments to activities-->
+      <div class="[ panel panel-default ] user-activities user-replies"
+           ng-repeat-end ng-repeat="comment in comments.comment" ng-if="comment.aid == activity.aid">
+        <div class="panel-heading">
+          <a href="">
+            <img class="[ img-circle pull-left ]" gravatar-src="'{{comment.picture}}'" width="46" />
+          </a>
+          <h3 ng-if="comment.uid != loggedUser.uid">
+            <a href="#/users/{{activity.uid}}">{{comment.title}}</a> commented:
+          </h3>
+          <h3 ng-if="comment.uid == loggedUser.uid">
+            <a href="#/users/{{activity.uid}}">You</a> commented:
+          </h3>
+          <h5>
+            <span>{{comment.date | date:'EEEE, dd MMMM yyyy, HH:mm'}}</span>
+          </h5>
+        </div>
+        <div class="panel-body">
+          <p class="commentBody">{{comment.body}}</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<!--New comment modal-->
+<script type="text/ng-template" id="newComment.html">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click='cancel()'>&times;</button>
+    <h4 class="modal-title">New Comment</h4>
+  </div>
+  <div class="modal-body">
+    <form action="">
+      <div class="form-group">
+        <textarea id="commentText" name="commentText" class="form-control"
+                  placeholder="Add your comment..." rows="2"></textarea>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-click="postComment()">Post comment</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+  </div>
+</script>
 
 <div class="modal-backdrop user-blocked fade in" ng-class="{in: animate}" ng-if="loggedUser.isBlocked == true">
   <i class="fa fa-warning fa-5x"></i>

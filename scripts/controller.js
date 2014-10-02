@@ -75,6 +75,17 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
       localStorage.setItem("activities", JSON.stringify($scope.activities));
     }
 
+    // Our comments object
+    $scope.comments = {comment: []};
+
+    // We check if comments exists in local storage
+    if(localStorage.comments) {
+      $scope.comments = JSON.parse(localStorage.comments);
+    } else {
+      // And if not, we create it
+      localStorage.setItem("comments", JSON.stringify($scope.comments));
+    }
+
     // Set the uid as route parameter for the user profile
     if(typeof $routeParams.uid == "undefined") {
       $scope.users.user.uid = -1;
@@ -436,6 +447,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
           // Called when ready to make the changes
           $scope.postActivity = function () {
 
+            var aid = $scope.activities.activity.length;
             var uid = $scope.loggedUser.uid;
             var title = $scope.loggedUser.firstName + ' ' + $scope.loggedUser.lastName;
             var picture = $scope.loggedUser.emailAddress;
@@ -446,13 +458,13 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
               // We push the activity details to the array
               $scope.activities.activity.push(
                 {
+                  "aid" : aid,
                   "uid" : uid,
                   "title" : title,
                   "picture" : picture,
                   "date" : date,
                   "body" : body,
-                  "isAdmin" : isAdmin,
-                  "isPublic" : false
+                  "isAdmin" : isAdmin
                 }
               );
 
@@ -484,6 +496,87 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
             localStorage.activities = JSON.stringify($scope.activities);
 
             $scope.pushAlert({type: 'danger', msg: 'The activity has been deleted.'});
+
+            $modalInstance.dismiss('cancel');
+          };
+
+          $scope.cancel = function() {
+            $modalInstance.dismiss('cancel');
+          }
+        }
+      });
+    };
+
+    // We create new comments (to posts)
+    $scope.newComment = function(activity) {
+
+      var modalNewCommentInstance = $modal.open({
+        scope: $scope,
+        templateUrl: 'newComment.html',
+        controller: function ($scope, $modalInstance) {
+          // Called when ready to make the changes
+          $scope.postComment = function () {
+
+            var cid = $scope.comments.comment.length;
+            var aid = activity.aid;
+            var uid = $scope.loggedUser.uid;
+            var title = $scope.loggedUser.firstName + ' ' + $scope.loggedUser.lastName;
+            var picture = $scope.loggedUser.emailAddress;
+            var date = new Date();
+            var isAdmin = $scope.loggedUser.isAdmin;
+            var body = $('#commentText').val();
+
+            // We push the activity details to the array
+            $scope.comments.comment.push(
+              {
+                "cid" : cid,
+                "aid" : aid,
+                "uid" : uid,
+                "title" : title,
+                "picture" : picture,
+                "date" : date,
+                "body" : body,
+                "isAdmin" : isAdmin
+              }
+            );
+
+            localStorage.comments = JSON.stringify($scope.comments);
+
+            $scope.pushAlert({type: 'success', msg: 'Your comment has been posted.'});
+            $modalInstance.dismiss('cancel');
+
+          };
+
+          $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+          }
+        }
+      });
+    };
+
+    // Called when we need to get the comments for the respective activity
+    $scope.getActivityComments = function(activity) {
+      if(activity.aid != $scope.comments.comment.aid) {
+        return false;
+      }
+      return true;
+    };
+
+    // Delete comments (admins can delete any user's comments and anyone can delete their own)
+    $scope.deleteComment = function(comment) {
+      var index = $scope.comments.comment.indexOf(comment);
+
+      var modalDeleteCommentInstance = $modal.open({
+        scope: $scope,
+        templateUrl: 'deleteComment.html',
+        controller: function ($scope, $modalInstance) {
+          // Called when ready to make the changes
+          $scope.remove = function() {
+
+            $scope.comments.comment.splice(index, 1);
+            localStorage.comments = JSON.stringify($scope.comments);
+
+            $scope.pushAlert({type: 'danger', msg: 'The comment has been deleted.'});
 
             $modalInstance.dismiss('cancel');
           };
