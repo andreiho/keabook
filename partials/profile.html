@@ -1,0 +1,219 @@
+<alert ng-repeat="alert in alerts" ng-animate="'fadealert'"
+       type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+<div class="row">
+  <div class="col-xs-12 col-xs-offset-3 col-sm-8 col-md-8 col-sm-offset-2 col-md-offset-2 user-details">
+    <div class="user-image">
+      <img class="img-circle" id="userGravatar" gravatar-src="'{{publicUser.emailAddress}}'">
+    </div>
+    <div class="user-info-block public">
+      <div class="user-heading">
+        <h3>{{publicUser.firstName + ' ' + publicUser.lastName}}</h3>
+        <span ng-if="publicUser.isAdmin == true" class="label label-info">Administrator</span>
+        <span ng-if="publicUser.isAdmin == false" class="label label-default">User</span>
+        <div ng-if="loggedUser.isAdmin == true" id="adminUser">
+          <button class="btn btn-default btn-sm" ng-click="editUser()">
+            <i class="fa fa-pencil" style="padding-right: 8px"></i> Edit user
+          </button>
+          <button class="btn btn-default btn-sm" ng-if="publicUser.isBlocked == false" ng-click="blockUser()">
+            <i class="fa fa-lock" style="padding-right: 8px"></i> Block user
+          </button>
+          <button class="btn btn-default btn-sm" ng-if="publicUser.isBlocked == true" ng-click="blockUser()">
+            <i class="fa fa-unlock" style="padding-right: 8px"></i> Unblock user
+          </button>
+          <button class="btn btn-default btn-sm" ng-click="changeRole('sm')">
+            <i class="fa fa-user" style="padding-right: 8px"></i> Change role
+          </button>
+          <button class="btn btn-default btn-sm" ng-click="deleteUser(user)">
+            <i class="fa fa-trash-o" style="padding-right: 8px"></i> Delete user
+          </button>
+        </div>
+      </div>
+      <tabset justified="true" class="tab-animation user-body">
+        <tab heading="Activities">
+          <div class="no-activities" ng-if="activities.activity.length == 0">
+            <span>=(</span>
+            There are no activities here.
+          </div>
+          <div class="[ panel panel-default ] user-activities"
+               ng-repeat="activity in activities.activity | filter:getPublicUserActivities"
+               ng-if="activity.length != 0">
+            <div class="dropdown" ng-if="loggedUser.isAdmin == true || loggedUser.uid == activity.uid">
+              <a href="" ng-click="deleteActivity(activity)"
+                 tooltip="Delete" tooltip-placement="bottom" tooltip-popup-delay="500">
+                <i class="fa fa-times"></i>
+              </a>
+            </div>
+            <div class="panel-heading">
+              <a href="#/users/{{activity.uid}}">
+                <img class="[ img-circle pull-left ]" gravatar-src="'{{activity.picture}}'" width="46" />
+              </a>
+              <h3>
+                <a href="#/users/{{activity.uid}}">{{activity.title}}</a> said:
+              </h3>
+              <h5>
+                <span>Shared publicly</span>
+                <span style="color: #ccc;font-size:9px;padding: 0 6px;">•</span>
+                <span>{{activity.date | date:'EEEE, dd MMMM yyyy, HH:mm'}}</span>
+              </h5>
+            </div>
+            <div class="panel-body">
+              <p>{{activity.body}}</p>
+            </div>
+          </div>
+        </tab>
+        <tab heading='Profile'>
+          <div class="row">
+            <div class="col-sm-12 col-md-8 col-lg-8" ng-hide="publicUser.profileInfo == true">
+              <legend>
+                <h4>About {{publicUser.firstName}}</h4>
+              </legend>
+              <p>
+                <i class="fa fa-birthday-cake fa-lg fa-fw"></i> {{publicUser.firstName}} hasn't set his/her birthday yet.
+              </p>
+              <p>
+                <i class="fa fa-map-marker fa-lg fa-fw"></i> {{publicUser.firstName}} hasn't set his/her location yet.
+              </p>
+              <p>
+                <i class="fa fa-info fa-lg fa-fw"></i> {{publicUser.firstName}} hasn't written anything about him/her yet.
+              </p>
+            </div>
+            <div class="col-sm-12 col-md-8 col-lg-8" ng-show="publicUser.profileInfo == true">
+              <legend>
+                <h4>About {{publicUser.firstName}}</h4>
+              </legend>
+              <p>
+                <i class="fa fa-birthday-cake fa-lg fa-fw"></i> {{publicUser.birthday}}
+              </p>
+              <p>
+                <i class="fa fa-map-marker fa-lg fa-fw"></i> {{publicUser.location}}
+              </p>
+              <p>
+                <i class="fa fa-info fa-lg fa-fw"></i> {{publicUser.bio}}
+              </p>
+            </div>
+            <div class="col-sm-12 col-md-4 col-lg-4 well" style="text-align: center">
+              <i class="fa fa-envelope fa-3x" style="color: #cccccc"></i>
+              <h5 style="padding: 15px 0">{{publicUser.emailAddress}}</h5>
+            </div>
+          </div>
+        </tab>
+      </tabset>
+    </div>
+  </div>
+</div>
+
+<!--Edit user modal-->
+<script type="text/ng-template" id="editUser.html">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click='cancel()'>&times;</button>
+    <h4 class="modal-title">Edit User</h4>
+  </div>
+  <div class="modal-body">
+    <form action="">
+      <div class="form-group">
+        <label class="control-label" for="userFirstName">First Name</label>
+        <input type="text" id="userFirstName" ng-model="publicUser.firstName" name="firstName"
+               class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="userLastName">Last Name</label>
+        <input type="text" id="userLastName" ng-model="publicUser.lastName" name="lastName"
+               class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="userEmail">E-mail</label>
+        <input type="email" id="userEmail" ng-model="publicUser.emailAddress" name="email"
+               class="form-control">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-click="saveUser()">Save changes</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+  </div>
+</script>
+
+<!--Change role modal-->
+<script type="text/ng-template" id="changeRole.html">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click='cancel()'>&times;</button>
+    <h4 class="modal-title">Change Role</h4>
+  </div>
+  <div class="modal-body">
+    <div ng-if="publicUser.isAdmin == false">
+      <div class="alert alert-info" role="alert">
+        <b>{{publicUser.firstName}} {{publicUser.lastName}}</b>
+        is a <b>User.</b>
+      </div>
+      <a href="" class="btn btn-info btn-block" role="button" ng-click="saveRole()">
+        <i class="fa fa-plus" style="padding-right: 7px"></i> Promote to <b>ADMINISTRATOR</b>
+      </a>
+    </div>
+
+    <div ng-if="publicUser.isAdmin == true">
+      <div class="alert alert-info" role="alert">
+        <b>{{publicUser.firstName}} {{publicUser.lastName}}</b>
+        is an <b>Administrator.</b>
+      </div>
+      <a href="" class="btn btn-default default btn-block" role="button" ng-click="saveRole()">
+        <i class="fa fa-minus" style="padding-right: 7px"></i> Demote to <b>USER</b>
+      </a>
+    </div>
+  </div>
+</script>
+
+<!--Block user modal-->
+<script type="text/ng-template" id="blockUser.html">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click='cancel()'>&times;</button>
+    <h4 class="modal-title">Block User</h4>
+  </div>
+  <div class="modal-body">
+    <span ng-if="publicUser.isBlocked == false">
+      Are you sure you want to block the user <b>{{publicUser.firstName}} {{publicUser.lastName}}</b>?
+    </span>
+    <span ng-if="publicUser.isBlocked == true">
+      Are you sure you want to unblock the user <b>{{publicUser.firstName}} {{publicUser.lastName}}</b>?
+    </span>
+  </div>
+  <div class="modal-footer">
+    <button ng-if="publicUser.isBlocked == false" class="btn btn-warning" ng-click="block()">Yes, block</button>
+    <button ng-if="publicUser.isBlocked == true" class="btn btn-warning" ng-click="block()">Yes, unblock</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+  </div>
+</script>
+
+<!--Delete user modal-->
+<script type="text/ng-template" id="deleteUser.html">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click='cancel()'>&times;</button>
+    <h4 class="modal-title">Delete User</h4>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete the user <b>{{publicUser.firstName}} {{publicUser.lastName}}</b>?
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-danger" ng-click="removeUser()">Yes, delete</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+  </div>
+</script>
+
+<!--Delete user activity modal-->
+<script type="text/ng-template" id="deleteActivity.html">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click='cancel()'>&times;</button>
+    <h4 class="modal-title">Delete Activity</h4>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete this activity?
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-danger" ng-click="remove()">Yes, delete</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+  </div>
+</script>
+
+<div class="modal-backdrop user-blocked fade in" ng-class="{in: animate}" ng-if="loggedUser.isBlocked == true">
+  <i class="fa fa-warning fa-5x"></i>
+  <span>Your access on this site <br> has been blocked.</span>
+</div>

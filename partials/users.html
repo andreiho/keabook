@@ -1,0 +1,40 @@
+<alert ng-repeat="alert in alerts" ng-animate="'fadealert'"
+       type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+<div class="row">
+  <div class="col-md-12">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-md-offset-3 wrap">
+      <p class="form-title">
+        Users on keabook</p>
+      <div class="input-group searchUsers">
+        <input type="text" class="form-control" placeholder="Search users..." ng-model="search.firstName">
+        <span class="input-group-addon"><i class="fa fa-search fa-flip-horizontal"></i></span>
+      </div>
+      <div class="row user-row" ng-repeat="user in users.user | filter: search:strict" ng-if="user.loggedIn == false">
+        <div class="col-xs-3 col-sm-2 col-md-2 col-lg-2 user-avatar">
+          <a ng-href="#/users/{{user.uid}}">
+            <img class="img-circle" gravatar-src="'{{user.emailAddress}}'" width="64" alt="User avatar">
+          </a>
+        </div>
+        <div class="col-xs-8 col-sm-9 col-md-9 col-lg-9 user-details">
+          <span class="user-name"><a ng-href="#/users/{{user.uid}}">{{user.firstName + ' ' + user.lastName}}</a></span><br>
+          <span ng-if="user.isAdmin == false" class="label label-default">User</span>
+          <span ng-if="user.isAdmin == true" class="label label-info">Administrator</span>
+          <span style="color: #ccc;font-size:8px;padding: 0 8px;">•</span>
+          <span class="text-muted user-email">{{user.emailAddress}}</span>
+        </div>
+        <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+          <a href="#/users/{{user.uid}}"
+             tooltip="See profile" tooltip-placement="bottom"
+             tooltip-popup-delay="500" tooltip-append-to-body="true">
+            <i class="fa fa-eye fa-lg"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop user-blocked fade in" ng-class="{in: animate}" ng-if="loggedUser.isBlocked == true">
+  <i class="fa fa-warning fa-5x"></i>
+  <span>Your access on this site <br> has been blocked.</span>
+</div>
