@@ -1,0 +1,18 @@
+<!--Block user modal-->
+<div class="modal-header">
+  <button type="button" class="close" ng-click='cancel()'>&times;</button>
+  <h4 class="modal-title">Block User</h4>
+</div>
+<div class="modal-body">
+  <span ng-if="publicUser.isBlocked == false">
+    Are you sure you want to block the user <b>{{publicUser.firstName}} {{publicUser.lastName}}</b>?
+  </span>
+  <span ng-if="publicUser.isBlocked == true">
+    Are you sure you want to unblock the user <b>{{publicUser.firstName}} {{publicUser.lastName}}</b>?
+  </span>
+</div>
+<div class="modal-footer">
+  <button ng-if="publicUser.isBlocked == false" class="btn btn-warning" ng-click="block()">Yes, block</button>
+  <button ng-if="publicUser.isBlocked == true" class="btn btn-warning" ng-click="block()">Yes, unblock</button>
+  <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+</div>

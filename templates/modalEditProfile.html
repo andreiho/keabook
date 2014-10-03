@@ -1,0 +1,36 @@
+<!--Edit profile modal-->
+<div class="modal-header">
+  <button type="button" class="close" ng-click='cancel()'>&times;</button>
+  <h4 class="modal-title">Edit Profile</h4>
+</div>
+<div class="modal-body">
+  <form action="">
+    <div class="form-group">
+      <label class="control-label">Your birthday</label>
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-birthday-cake"></i></span>
+        <input type="text" id="profileBirthday" ng-model="loggedUser.birthday" name="birthday"
+               class="form-control" placeholder="eg. 01/01/1990">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label">Your location</label>
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-map-marker"></i></span>
+        <input type="text" id="profileLocation" ng-model="loggedUser.location" name="location"
+               class="form-control" placeholder="eg. Copenhagen, Denmark">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label">About yourself</label>
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-info"></i></span>
+        <textarea ng-model="loggedUser.bio" id="profileBio" name="bio" class="form-control"></textarea>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-click="save()">Save changes</button>
+  <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+</div>
