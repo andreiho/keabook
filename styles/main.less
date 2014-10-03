@@ -355,7 +355,6 @@ a {
       }
       p {
         padding-top: 10px;
-        display: inline-block;
         i {
           margin-right: 10px;
         }
@@ -410,7 +409,7 @@ a {
 .activities {
   margin-bottom: 20px;
 }
-.activity-feed, .user-activities {
+.activity-feed, .user-activities, .user-messages {
   position: relative;
   border-radius: 0px;
   border: none;
@@ -463,7 +462,7 @@ a {
   }
   .panel-body {
     padding: 10px 0;
-    font-size: 14px;
+    font-size: 15px;
     border-bottom: 1px solid #f0f0f0;
     p {
       margin-left: 18px;
@@ -497,13 +496,21 @@ a {
     }
   }
 }
-.user-activities {
+.user-activities, .user-messages {
   padding: 0;
   .panel-heading {
     padding-bottom: 0;
   }
   .dropdown {
     right: 0;
+  }
+}
+.user-messages {
+  padding-bottom: 10px;
+  .panel-body {
+    p.messageBody {
+      margin-left: 62px;
+    }
   }
 }
 .user-replies {

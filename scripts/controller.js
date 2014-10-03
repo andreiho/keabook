@@ -86,6 +86,17 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
       localStorage.setItem("comments", JSON.stringify($scope.comments));
     }
 
+    // Our messages object
+    $scope.messages = {message: []};
+
+    // We check if comments exists in local storage
+    if(localStorage.messages) {
+      $scope.messages = JSON.parse(localStorage.messages);
+    } else {
+      // And if not, we create it
+      localStorage.setItem("messages", JSON.stringify($scope.messages));
+    }
+
     // Set the uid as route parameter for the user profile
     if(typeof $routeParams.uid == "undefined") {
       $scope.users.user.uid = -1;
@@ -236,7 +247,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
       // We initialize the modal
       var modalEditProfileInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'editProfile.html',
+        templateUrl: 'templates/modalEditProfile.html',
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
           $scope.save = function() {
@@ -310,7 +321,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
 
       var modalEditUserInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'editUser.html',
+        templateUrl: 'templates/modalEditUser.html',
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
           $scope.saveUser = function() {
@@ -336,7 +347,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
 
       var modalChangeRoleInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'changeRole.html',
+        templateUrl: 'templates/modalChangeRole.html',
         size: size,
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
@@ -367,7 +378,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
 
       var modalBlockUserInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'blockUser.html',
+        templateUrl: 'templates/modalBlockUser.html',
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
           $scope.block = function() {
@@ -398,7 +409,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
 
       var modalDeleteUserInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'deleteUser.html',
+        templateUrl: 'templates/modalDeleteUser.html',
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
           $scope.removeUser = function() {
@@ -442,7 +453,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
 
       var modalNewActivityInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'newActivity.html',
+        templateUrl: 'templates/modalCreateActivity.html',
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
           $scope.postActivity = function () {
@@ -487,7 +498,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
 
       var modalDeleteActivityInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'deleteActivity.html',
+        templateUrl: 'templates/modalDeleteActivity.html',
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
           $scope.remove = function() {
@@ -512,7 +523,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
 
       var modalNewCommentInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'newComment.html',
+        templateUrl: 'templates/modalCreateComment.html',
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
           $scope.postComment = function () {
@@ -568,7 +579,7 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
 
       var modalDeleteCommentInstance = $modal.open({
         scope: $scope,
-        templateUrl: 'deleteComment.html',
+        templateUrl: 'templates/modalDeleteComment.html',
         controller: function ($scope, $modalInstance) {
           // Called when ready to make the changes
           $scope.remove = function() {
@@ -577,6 +588,80 @@ keabookApp.controller('keabookCtrl', ['$scope', '$location', '$routeParams', '$t
             localStorage.comments = JSON.stringify($scope.comments);
 
             $scope.pushAlert({type: 'danger', msg: 'The comment has been deleted.'});
+
+            $modalInstance.dismiss('cancel');
+          };
+
+          $scope.cancel = function() {
+            $modalInstance.dismiss('cancel');
+          }
+        }
+      });
+    };
+
+    // We create new private message
+    $scope.newMessage = function() {
+
+      var modalNewMessageInstance = $modal.open({
+        scope: $scope,
+        templateUrl: 'templates/modalCreateMessage.html',
+        controller: function ($scope, $modalInstance) {
+          // Called when ready to make the changes
+          $scope.sendMessage = function () {
+
+            var from = $scope.loggedUser.uid;
+            var fromName = $scope.loggedUser.firstName + ' ' + $scope.loggedUser.lastName;
+            var fromPicture = $scope.loggedUser.emailAddress;
+            var to = $scope.publicUser.uid;
+            var toName = $scope.publicUser.firstName + ' ' + $scope.publicUser.lastName;
+            var toPicture = $scope.publicUser.emailAddress;
+            var mid = $scope.messages.message.length;
+            var date = new Date();
+            var body = $('#messageText').val();
+
+            // We push the activity details to the array
+            $scope.messages.message.push(
+              {
+                "from" : from,
+                "fromName" : fromName,
+                "fromPicture" : fromPicture,
+                "to" : to,
+                "toName" : toName,
+                'toPicture' : toPicture,
+                "mid" : mid,
+                "date" : date,
+                "body" : body,
+              }
+            );
+
+            localStorage.messages = JSON.stringify($scope.messages);
+
+            $scope.pushAlert({type: 'success', msg: 'Your message has been sent.'});
+            $modalInstance.dismiss('cancel');
+          };
+
+          $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+          }
+        }
+      });
+    };
+
+    // Delete messages
+    $scope.deleteMessage = function(message) {
+      var index = $scope.messages.message.indexOf(message);
+
+      var modalDeleteMessageInstance = $modal.open({
+        scope: $scope,
+        templateUrl: 'templates/modalDeleteMessage.html',
+        controller: function ($scope, $modalInstance) {
+          // Called when ready to make the changes
+          $scope.remove = function() {
+
+            $scope.messages.message.splice(index, 1);
+            localStorage.messages = JSON.stringify($scope.messages);
+
+            $scope.pushAlert({type: 'danger', msg: 'The message has been deleted.'});
 
             $modalInstance.dismiss('cancel');
           };
